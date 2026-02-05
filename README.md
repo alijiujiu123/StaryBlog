@@ -24,11 +24,15 @@ StaryBlog/
 └── README.md           # 项目说明
 ```
 
+## 🌐 在线访问
+
+- **生产环境**: http://43.167.189.165
+
 ## 🛠️ 本地运行
 
 1. 克隆仓库:
 ```bash
-git clone https://github.com/geshishuai/StaryBlog.git
+git clone https://github.com/alijiujiu123/StaryBlog.git
 cd StaryBlog
 ```
 
@@ -42,6 +46,20 @@ npx serve
 ```
 
 3. 在浏览器中访问 `http://localhost:8000`
+
+## 🚀 部署
+
+部署到 dongjingTest 服务器:
+
+```bash
+# 方式一:使用部署脚本
+./deploy.sh
+
+# 方式二:手动部署
+ssh root@43.167.189.165
+cd /var/www/staryblog
+git pull origin main
+```
 
 ## 📄 许可证
 
