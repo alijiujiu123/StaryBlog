@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stary's Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+        }
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+        }
+        .prose h1 { font-size: 2.25rem; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose h2 { font-size: 1.875rem; margin-top: 2rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+        .prose h3 { font-size: 1.5rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose h4 { font-size: 1.25rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .prose p { margin-bottom: 1rem; line-height: 1.8; }
+        .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose ul { list-style-type: disc; }
+        .prose ol { list-style-type: decimal; }
+        .prose blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            color: #6b7280;
+            font-style: italic;
+        }
+        .prose code {
+            background: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .prose pre {
+            background: #1f2937;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        .prose pre code {
+            background: transparent;
+            padding: 0;
+            color: #e5e7eb;
+        }
+        .prose table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .prose th, .prose td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .prose th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        .prose a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .prose a:hover {
+            text-decoration: underline;
+        }
+        .prose strong { font-weight: 600; }
+        .prose hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+        #toc {
+            position: sticky;
+            top: 5rem;
+        }
+        #toc a {
+            color: #4b5563;
+            text-decoration: none;
+            display: block;
+            padding: 0.25rem 0;
+        }
+        #toc a:hover {
+            color: #2563eb;
+        }
+        #toc .toc-h2 {
+            font-weight: 500;
+            margin-top: 0.75rem;
+        }
+        #toc .toc-h3 {
+            font-size: 0.875rem;
+            padding-left: 1rem;
+            color: #6b7280;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-gray-900">Stary's Blog</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-gray-900 transition-colors">首页</a>
+                    <a href="#about" class="text-gray-700 hover:text-gray-900 transition-colors">关于</a>
+                    <a href="https://github.com/" target="_blank" class="text-gray-700 hover:text-gray-900 transition-colors">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Content -->
+    <div id="content" class="hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex gap-8">
+                <!-- Main Content -->
+                <main class="flex-1 min-w-0">
+                    <article id="article" class="prose max-w-none bg-white rounded-lg shadow-sm p-8 md:p-12">
+                    </article>
+                </main>
+
+                <!-- TOC Sidebar -->
+                <aside id="toc-container" class="hidden lg:block w-64 flex-shrink-0">
+                    <div id="toc" class="text-sm">
+                        <h4 class="font-semibold text-gray-900 mb-3">目录</h4>
+                        <div id="toc-list"></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">
+                © 2026 Stary's Blog. Built with
+                <a href="https://tailwindcss.com" target="_blank" class="text-blue-400 hover:text-blue-300">Tailwind CSS</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Get post path from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const postPath = urlParams.get('post');
+
+        if (!postPath) {
+            window.location.href = '/';
+        }
+
+        // Configure marked
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+
+        // Load and render markdown
+        fetch(`/posts/${postPath}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Post not found');
+                return response.text();
+            })
+            .then(markdown => {
+                // Render markdown
+                const html = marked.parse(markdown);
+                document.getElementById('article').innerHTML = html;
+
+                // Set page title
+                const h1 = document.querySelector('#article h1');
+                if (h1) {
+                    document.title = h1.textContent + ' - Stary\'s Blog';
+                }
+
+                // Generate TOC
+                const tocList = document.getElementById('toc-list');
+                const headings = document.querySelectorAll('#article h2, #article h3');
+                headings.forEach((heading, index) => {
+                    const id = 'heading-' + index;
+                    heading.id = id;
+                    const link = document.createElement('a');
+                    link.href = '#' + id;
+                    link.textContent = heading.textContent;
+                    link.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+                    tocList.appendChild(link);
+                });
+
+                // Show content
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+                // Smooth scroll for anchor links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (href !== '#') {
+                            e.preventDefault();
+                            const target = document.querySelector(href);
+                            if (target) {
+                                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <p class="text-gray-500 mb-4">文章加载失败</p>
+                        <a href="/" class="text-blue-600 hover:underline">返回首页</a>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>
