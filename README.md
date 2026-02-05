@@ -32,7 +32,7 @@ StaryBlog/
 
 1. 克隆仓库:
 ```bash
-git clone https://github.com/alijiujiu123/StaryBlog.git
+git clone https://github.com/YOUR_USERNAME/StaryBlog.git
 cd StaryBlog
 ```
 
@@ -67,7 +67,7 @@ MIT License
 
 ## 👤 作者
 
-[Stary](https://github.com/geshishuai)
+[Your Name](https://github.com/)
 
 ---
 

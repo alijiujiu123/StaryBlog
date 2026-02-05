@@ -5,7 +5,7 @@
 
 SERVER="root@43.167.189.165"
 DEPLOY_PATH="/var/www/staryblog"
-REPO_URL="https://github.com/alijiujiu123/StaryBlog.git"
+REPO_URL="https://github.com/YOUR_USERNAME/StaryBlog.git"
 
 echo "🚀 开始部署 StaryBlog 到 dongjingTest..."
 
