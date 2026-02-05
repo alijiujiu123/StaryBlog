@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 技术架构深度研究 - Stary's Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tiempos+Headline:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B7355;
+            --primary-content: #FAF6F0;
+            --secondary: #6B5B73;
+            --secondary-content: #F5F2F5;
+            --accent: #A0826D;
+            --neutral: #2A2230;
+            --base-100: #FAF6F0;
+            --base-200: #F5F2F5;
+            --base-300: #E8E6E8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--base-100);
+            color: var(--neutral);
+            line-height: 1.7;
+        }
+
+        .serif {
+            font-family: 'Tiempos Headline', serif;
+        }
+
+        .toc-fixed {
+            position: fixed;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 50;
+            background: rgba(250, 246, 240, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--base-300);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(42, 34, 48, 0.1);
+        }
+
+        .toc-fixed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc-fixed::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .toc-fixed::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .main-content {
+            margin-left: 320px;
+            max-width: 900px;
+            padding: 0 2rem;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            min-height: 400px;
+        }
+
+        .hero-title {
+            grid-column: 1 / -1;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-visual {
+            grid-column: 2;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .hero-summary {
+            grid-column: 1;
+            padding: 2rem;
+            background: var(--base-200);
+            border-radius: 16px;
+            border: 1px solid var(--base-300);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--base-300);
+        }
+
+        .citation {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dotted var(--secondary);
+            transition: all 0.2s ease;
+        }
+
+        .citation:hover {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .section-number {
+            color: var(--primary);
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .pull-quote {
+            border-left: 4px solid var(--primary);
+            padding-left: 2rem;
+            margin: 2rem 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .toc-fixed {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-visual {
+                grid-column: 1;
+            }
+            .hero-summary {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 0 1rem;
+            }
+            .hero-title h1 {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .main-content {
+                padding: 0 0.5rem;
+            }
+            .hero-title h1 {
+                font-size: 1.5rem;
+                line-height: 2rem;
+            }
+            .hero-title p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+    <!-- Fixed Table of Contents -->
+    <nav class="toc-fixed">
+        <h3 class="serif text-lg font-bold mb-4 text-neutral">目录</h3>
+        <ul class="space-y-2 text-sm">
+            <li>
+                <a href="#introduction" class="citation">引言</a>
+            </li>
+            <li>
+                <a href="#architecture" class="citation">1. 整体架构设计</a>
+                <ul class="ml-4 mt-1 space-y-1">
+                    <li>
+                        <a href="#architecture-paradigm" class="text-xs citation">1.1 架构范式与核心理念</a>
+                    </li>
+                    <li>
+                        <a href="#core-components" class="text-xs citation">1.2 核心组件体系</a>
+                    </li>
+                    <li>
+                        <a href="#data-flow" class="text-xs citation">1.3 数据流与交互机制</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#key-technologies" class="citation">2. 关键技术实现</a>
+                <ul class="ml-4 mt-1 space-y-1">
+                    <li>
+                        <a href="#workspace-isolation" class="text-xs citation">2.1 工作区隔离</a>
+                    </li>
+                    <li>
+                        <a href="#sandbox-execution" class="text-xs citation">2.2 沙箱执行</a>
+                    </li>
+                    <li>
+                        <a href="#multi-agent" class="text-xs citation">2.3 多智能体协作</a>
+                    </li>
+                    <li>
+                        <a href="#unified-protocol" class="text-xs citation">2.4 统一消息协议</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#advantages" class="citation">3. 架构优势与特点</a>
+                <ul class="ml-4 mt-1 space-y-1">
+                    <li>
+                        <a href="#local-first" class="text-xs citation">3.1 本地优先</a>
+                    </li>
+                    <li>
+                        <a href="#production-grade" class="text-xs citation">3.2 生产级运行时平台</a>
+                    </li>
+                    <li>
+                        <a href="#security" class="text-xs citation">3.3 高安全性</a>
+                    </li>
+                    <li>
+                        <a href="#extensibility" class="text-xs citation">3.4 可扩展性</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#scenarios" class="citation">4. 典型应用场景</a>
+            </li>
+            <li>
+                <a href="#conclusion" class="citation">结论</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Back to Home Button -->
+    <div class="fixed top-4 left-4 z-50">
+        <a href="/" class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-lg shadow-md hover:bg-white transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            返回首页
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <header class="hero-grid">
+            <div class="hero-title">
+                <h1 class="serif text-5xl font-bold leading-tight mb-6">
+                    <span class="text-neutral">OpenClaw 技术架构</span>
+                    <br/>
+                    <span class="text-primary italic">深度研究</span>
+                </h1>
+                <p class="text-xl text-secondary leading-relaxed">
+                    探索 Gateway-Centric 架构下的本地优先 AI 助手平台设计理念与工程实践
+                </p>
+            </div>
+
+            <div class="hero-visual">
+                <img src="https://kimi-web-img.moonshot.cn/img/placeholder-0620/图片18.png" alt="抽象技术网络结构示意图" class="w-full h-full object-cover opacity-80" referrerpolicy="no-referrer">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20"></div>
+            </div>
+
+            <div class="hero-summary">
+                <h3 class="serif text-xl font-bold mb-4">执行摘要</h3>
+                <p class="text-sm leading-relaxed">
+                    OpenClaw 采用独特的 <strong class="text-primary">Gateway-Centric 架构</strong>,通过单一 Gateway 进程统一协调多平台即时通讯接入、智能体执行与状态管理。其 <strong class="text-secondary">本地优先</strong>设计理念确保数据主权,支持 12+ 主流通讯平台,采用 Docker 沙箱实现工具执行隔离,提供多智能体协作、流式响应、Canvas 视觉界面等高级功能。
+                </p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs">Gateway-Centric</span>
+                    <span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs">本地优先</span>
+                    <span class="bg-accent/10 text-accent px-3 py-1 rounded-full text-xs">模型无关</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Introduction -->
+        <section id="introduction" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">引言</h2>
+            <p class="text-lg leading-relaxed mb-6">
+                在人工智能助手蓬勃发展的时代,OpenClaw 以其独特的架构设计理念脱颖而出。作为一款开源个人 AI 助手,OpenClaw 不仅提供了强大的智能体功能,更重要的是其<strong class="text-primary">Gateway-Centric 架构</strong>与<strong class="text-secondary">本地优先</strong>设计哲学的深度融合。
+            </p>
+
+            <div class="pull-quote">
+                "OpenClaw 刻意选择了集中式设计,其核心动机在于确保系统的可靠性、安全性与简洁性。Gateway 作为单一控制源,承担了消息路由、会话管理、信道连接、智能体协调等多重职责。"
+            </div>
+
+            <p class="leading-relaxed">
+                本文将深入剖析 OpenClaw 的技术架构,从核心设计理念到具体实现细节,从关键技术特性到实际应用场景,全方位展现这一创新架构如何重新定义个人 AI 助手的技术边界。<a href="https://openclaw-ai.online/architecture/" class="citation">官方文档</a>明确指出,OpenClaw 的设计目标是打造一个既保护用户数据主权,又具备生产级可靠性的智能体平台。
+            </p>
+        </section>
+
+        <!-- Section 1: Architecture Design -->
+        <section id="architecture" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">
+                <span class="section-number">1.</span> 整体架构设计
+            </h2>
+
+            <!-- Architecture Paradigm -->
+            <div id="architecture-paradigm" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">1.1.</span> 架构范式与核心理念
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">Gateway-Centric 架构模式</h4>
+                    <p class="leading-relaxed mb-4">
+                        OpenClaw 采用独特的 <strong class="text-primary">Gateway-centric architecture</strong>,将整个系统的控制平面集中于单一长期运行的 Gateway 进程中<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>。与传统的分布式微服务架构不同,这种集中式设计显著降低了系统复杂度,避免了分布式系统中常见的状态一致性问题。
+                    </p>
+
+                    <div class="bg-base-200 p-6 rounded-lg mb-6">
+                        <h5 class="font-semibold mb-3">Gateway 的多重角色</h5>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start"><i class="fas fa-server text-primary mr-2 mt-1"></i><span><strong>WebSocket 服务器</strong>:默认端口 18789,提供实时通信通道</span></li>
+                            <li class="flex items-start"><i class="fas fa-file-alt text-primary mr-2 mt-1"></i><span><strong>HTTP 文件服务器</strong>:端口 18793,托管 Canvas 视觉界面</span></li>
+                            <li class="flex items-start"><i class="fas fa-plug text-primary mr-2 mt-1"></i><span><strong>信道适配器管理器</strong>:协调多平台即时通讯接入</span></li>
+                            <li class="flex items-start"><i class="fas fa-brain text-primary mr-2 mt-1"></i><span><strong>智能体通信协调器</strong>:管理 Agent Core 实例</span></li>
+                        </ul>
+                    </div>
+
+                    <p class="leading-relaxed">
+                        Gateway-centric 架构的关键优势在于<strong class="text-secondary">状态管理的集中化</strong>。所有会话状态、认证令牌、智能体配置均维护在 Gateway 进程内部,避免了外部依赖带来的部署负担。官方文档明确建议 <strong>"One Gateway per host"</strong> 的部署原则<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>,确保连接稳定性并防止会话冲突。
+                    </p>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">本地优先(Local-First)设计哲学</h4>
+                    <p class="leading-relaxed mb-4">
+                        OpenClaw 的本地优先设计不仅是技术选择,更是对产品价值观的坚守。在数据存储层面,所有用户数据、会话历史、智能体记忆均默认存储于本地文件系统,具体位于
+                        <code class="bg-base-300 px-2 py-1 rounded">~/.openclaw/</code> 目录下<a href="https://docs.openclaw.ai/concepts/agent-workspace" class="citation">[190]</a>。
+                    </p>
+
+                    <div class="pull-quote">
+                        "本地优先的实现需要解决一系列技术挑战:模型推理的本地化支持、功能完整性保障、跨设备同步问题。"
+                    </div>
+
+                    <p class="leading-relaxed">
+                        网络架构层面,本地优先体现为 <strong class="text-primary">Loopback-First 网络策略</strong>。Gateway 的 WebSocket 控制平面默认绑定
+                        <code class="bg-base-300 px-2 py-1 rounded">ws://127.0.0.1:18789</code>,仅接受来自本机的连接<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>。这种"默认拒绝远程访问"的设计大幅降低了攻击面。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Core Components -->
+            <div id="core-components" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">1.2.</span> 核心组件体系
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-cube text-primary text-2xl mr-3"></i>
+                            <h4 class="serif text-lg font-semibold">Gateway</h4>
+                        </div>
+                        <p class="text-sm leading-relaxed">统一控制平面的核心进程,协调所有组件间的通信与状态管理</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-brain text-secondary text-2xl mr-3"></i>
+                            <h4 class="serif text-lg font-semibold">Agent Core</h4>
+                        </div>
+                        <p class="text-sm leading-relaxed">智能体核心,承载 AI 推理与执行引擎,通过 Pi RPC 与 Gateway 通信</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-comments text-accent text-2xl mr-3"></i>
+                            <h4 class="serif text-lg font-semibold">Channels</h4>
+                        </div>
+                        <p class="text-sm leading-relaxed">即时通讯信道矩阵,支持 12+ 主流平台的接入与消息传输</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">Gateway 统一控制平面功能</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">层级</th>
+                                    <th class="border border-base-300 p-3 text-left">机制</th>
+                                    <th class="border border-base-300 p-3 text-left">用途</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">API Key</td>
+                                    <td class="border border-base-300 p-3">LLM 提供商认证</td>
+                                    <td class="border border-base-300 p-3">模型调用身份验证</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">会话令牌</td>
+                                    <td class="border border-base-300 p-3">Gateway 客户端认证</td>
+                                    <td class="border border-base-300 p-3">CLI、Chat UI、移动应用连接</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">mTLS(可选)</td>
+                                    <td class="border border-base-300 p-3">双向证书认证</td>
+                                    <td class="border border-base-300 p-3">生产环境高安全部署<a href="https://www.giskard.ai/knowledge/openclaw-security-vulnerabilities-include-data-leakage-and-prompt-injection-risks" class="citation">[191]</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flow -->
+            <div id="data-flow" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">1.3.</span> 数据流与交互机制
+                </h3>
+
+                <div class="bg-white p-8 rounded-lg border border-base-300 shadow-sm mb-8">
+                    <h4 class="serif text-xl font-semibold mb-6">消息流转路径</h4>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h5 class="font-semibold mb-4 text-primary">入站流程:信道 → Gateway → Agent Core</h5>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs mr-3">1</div>
+                                    <span>信道接收:平台适配器接收原始消息</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs mr-3">2</div>
+                                    <span>标准化转换:转换为内部 Message 结构</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs mr-3">3</div>
+                                    <span>Gateway 路由:规则匹配确定目标智能体</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs mr-3">4</div>
+                                    <span>Agent Core 处理:ReAct 循环生成响应</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h5 class="font-semibold mb-4 text-secondary">出站流程:Agent Core → Gateway → 信道</h5>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white text-xs mr-3">1</div>
+                                    <span>内容分析:解析响应结构(文本/代码/图片)</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white text-xs mr-3">2</div>
+                                    <span>平台适配:转换为平台原生格式</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white text-xs mr-3">3</div>
+                                    <span>富媒体处理:上传 CDN 获取可发送 URL</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-white text-xs mr-3">4</div>
+                                    <span>Gateway 投递:调用信道适配器发送接口</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Technologies -->
+        <section id="key-technologies" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">
+                <span class="section-number">2.</span> 关键技术实现
+            </h2>
+
+            <!-- Workspace Isolation -->
+            <div id="workspace-isolation" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">2.1.</span> 工作区隔离(Workspace Isolation)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">工作区抽象模型</h4>
+
+                    <p class="leading-relaxed mb-6">
+                        OpenClaw 的 <strong class="text-primary">工作区(Workspace)</strong> 是智能体的核心运行环境抽象。默认工作区位于
+                        <code class="bg-base-300 px-2 py-1 rounded">~/.openclaw/workspace/</code>,内容组织遵循约定优于配置原则<a href="https://docs.openclaw.ai/concepts/agent-workspace" class="citation">[190]</a>。
+                    </p>
+
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">路径</th>
+                                    <th class="border border-base-300 p-3 text-left">用途</th>
+                                    <th class="border border-base-300 p-3 text-left">持久化策略</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-mono text-xs">MEMORY.md</td>
+                                    <td class="border border-base-300 p-3">长期个人记忆,主会话加载</td>
+                                    <td class="border border-base-300 p-3">关键更新时同步刷新</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-mono text-xs">notes/</td>
+                                    <td class="border border-base-300 p-3">按日期组织的每日笔记</td>
+                                    <td class="border border-base-300 p-3">自动压缩和归档</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-mono text-xs">skills/</td>
+                                    <td class="border border-base-300 p-3">自定义技能开发目录</td>
+                                    <td class="border border-base-300 p-3">Git 版本控制推荐</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-mono text-xs">scripts/</td>
+                                    <td class="border border-base-300 p-3">用户脚本和自动化</td>
+                                    <td class="border border-base-300 p-3">手动管理</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-mono text-xs">data/</td>
+                                    <td class="border border-base-300 p-3">应用数据(下载文件、数据库)</td>
+                                    <td class="border border-base-300 p-3">定期清理</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pull-quote">
+                        "文件化的工作区设计带来了独特优势:用户可直接使用熟悉的文件管理工具浏览和编辑;可使用 Git 进行版本控制;可使用 Obsidian、Notion 等知识管理工具打开记忆目录。"
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">隔离层级设计</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">层级</th>
+                                    <th class="border border-base-300 p-3 text-left">机制</th>
+                                    <th class="border border-base-300 p-3 text-left">隔离强度</th>
+                                    <th class="border border-base-300 p-3 text-left">性能开销</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">进程级隔离</td>
+                                    <td class="border border-base-300 p-3">独立操作系统进程</td>
+                                    <td class="border border-base-300 p-3">地址空间分离</td>
+                                    <td class="border border-base-300 p-3">低</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">文件系统命名空间隔离</td>
+                                    <td class="border border-base-300 p-3">Linux mount namespace + bind mounts</td>
+                                    <td class="border border-base-300 p-3">文件系统视图隔离</td>
+                                    <td class="border border-base-300 p-3">中</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">网络命名空间隔离</td>
+                                    <td class="border border-base-300 p-3">Linux network namespace</td>
+                                    <td class="border border-base-300 p-3">网络栈完全独立</td>
+                                    <td class="border border-base-300 p-3">中</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sandbox Execution -->
+            <div id="sandbox-execution" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">2.2.</span> 沙箱执行(Sandbox Execution)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">容器化执行引擎</h4>
+
+                    <p class="leading-relaxed mb-6">
+                        OpenClaw 的沙箱执行基于 <strong class="text-primary">Docker 容器运行时</strong>,利用成熟的隔离机制和生态系统<a href="https://docs.openclaw.ai/gateway/sandboxing" class="citation">[194]</a>。核心组件包括镜像管理、容器生命周期管理、资源限制等。
+                    </p>
+
+                    <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                        <h5 class="font-semibold mb-4">沙箱模式配置</h5>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-base-300 text-sm">
+                                <thead>
+                                    <tr class="bg-base-200">
+                                        <th class="border border-base-300 p-3 text-left">模式</th>
+                                        <th class="border border-base-300 p-3 text-left">配置值</th>
+                                        <th class="border border-base-300 p-3 text-left">说明</th>
+                                        <th class="border border-base-300 p-3 text-left">适用场景</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-base-300 p-3 font-medium">关闭</td>
+                                        <td class="border border-base-300 p-3 font-mono text-xs">"off"</td>
+                                        <td class="border border-base-300 p-3">无沙箱,主机直接执行</td>
+                                        <td class="border border-base-300 p-3">本地开发、完全可信环境</td>
+                                    </tr>
+                                    <tr class="bg-base-100">
+                                        <td class="border border-base-300 p-3 font-medium">非主会话</td>
+                                        <td class="border border-base-300 p-3 font-mono text-xs">"non-main"</td>
+                                        <td class="border border-base-300 p-3">仅非主会话沙箱化</td>
+                                        <td class="border border-base-300 p-3">多智能体场景(推荐)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-base-300 p-3 font-medium">全部</td>
+                                        <td class="border border-base-300 p-3 font-mono text-xs">"all"</td>
+                                        <td class="border border-base-300 p-3">所有会话沙箱化</td>
+                                        <td class="border border-base-300 p-3">生产环境、不可信输入<a href="https://docs.openclaw.ai/gateway/sandboxing" class="citation">[194]</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">安全边界强化</h4>
+
+                    <p class="leading-relaxed mb-6">
+                        OpenClaw 实施了多层安全边界强化机制,确保沙箱执行的安全性<a href="https://docs.openclaw.ai/gateway/sandboxing" class="citation">[194]</a>:
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-primary">系统调用过滤</h5>
+                            <p class="text-sm">Seccomp 配置文件阻断危险调用(mount、pivot_root 等)</p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-secondary">Capabilities 降权</h5>
+                            <p class="text-sm">
+                                <code class="bg-base-300 px-2 py-1 rounded text-xs">--cap-drop=all</code> + 显式
+                                <code class="bg-base-300 px-2 py-1 rounded text-xs">cap-add</code>
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-accent">MAC 强制访问控制</h5>
+                            <p class="text-sm">AppArmor/SELinux 策略限制文件/网络/IPC 访问</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Agent -->
+            <div id="multi-agent" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">2.3.</span> 多智能体协作(Multi-Agent Collaboration)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">智能体编排模型</h4>
+
+                    <p class="leading-relaxed mb-6">
+                        <strong class="text-primary">主从架构(Principal-Specialist Pattern)</strong> 是 OpenClaw 多智能体协作的典型模式:主智能体协调多个专精智能体,各自负责特定领域(研究、日程、监控等)<a href="https://o-mega.ai/articles/openclaw-creating-the-ai-agent-workforce-ultimate-guide-2026" class="citation">[197]</a>。
+                    </p>
+
+                    <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                        <h5 class="font-semibold mb-4">智能体间消息传递扩展</h5>
+                        <p class="text-sm leading-relaxed mb-4">
+                            智能体间消息传递基于标准消息格式,添加了以下扩展字段<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>:
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-user text-primary mr-2 mt-1"></i>
+                                <span><code class="bg-base-300 px-2 py-1 rounded text-xs">recipient_agent_id</code>:指定接收智能体</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-link text-primary mr-2 mt-1"></i>
+                                <span><code class="bg-base-300 px-2 py-1 rounded text-xs">correlation_id</code>:关联请求与响应</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-flag text-primary mr-2 mt-1"></i>
+                                <span><code class="bg-base-300 px-2 py-1 rounded text-xs">priority</code>:消息优先级</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-clock text-primary mr-2 mt-1"></i>
+                                <span><code class="bg-base-300 px-2 py-1 rounded text-xs">deadline</code>:执行截止期限</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">并发与同步控制</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">机制</th>
+                                    <th class="border border-base-300 p-3 text-left">适用场景</th>
+                                    <th class="border border-base-300 p-3 text-left">实现方式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">乐观并发控制</td>
+                                    <td class="border border-base-300 p-3">读多写少、冲突可自动合并</td>
+                                    <td class="border border-base-300 p-3">时间戳排序、版本向量</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">分布式锁</td>
+                                    <td class="border border-base-300 p-3">冲突高发、需强一致性</td>
+                                    <td class="border border-base-300 p-3">文件系统 flock、Redis、etcd</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">冲突检测与解决</td>
+                                    <td class="border border-base-300 p-3">结构化数据、语义冲突</td>
+                                    <td class="border border-base-300 p-3">LLM 辅助智能合并</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Protocol -->
+            <div id="unified-protocol" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">2.4.</span> 统一消息协议(Unified Messaging Protocol)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">协议分层设计</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">层级</th>
+                                    <th class="border border-base-300 p-3 text-left">协议/格式</th>
+                                    <th class="border border-base-300 p-3 text-left">职责</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">传输层</td>
+                                    <td class="border border-base-300 p-3">WebSocket/TCP</td>
+                                    <td class="border border-base-300 p-3">可靠字节流,全双工通信</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">帧层</td>
+                                    <td class="border border-base-300 p-3">WebSocket 帧</td>
+                                    <td class="border border-base-300 p-3">消息边界、掩码、心跳</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">表示层</td>
+                                    <td class="border border-base-300 p-3">JSON(MessagePack 可选)</td>
+                                    <td class="border border-base-300 p-3">结构化数据序列化</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">应用层</td>
+                                    <td class="border border-base-300 p-3">JSON-RPC 2.0 / Pi RPC</td>
+                                    <td class="border border-base-300 p-3">远程调用语义、智能体扩展</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">消息格式标准化</h4>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-primary">请求消息结构</h5>
+                            <pre class="text-xs bg-base-200 p-3 rounded overflow-x-auto">{
+  "type": "req",
+  "id": "uuid-v4",
+  "method": "agent.invoke",
+  "params": {
+    "prompt": "...",
+    "tools": ["read", "exec"]
+  }
+}</pre>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-secondary">响应消息结构</h5>
+                            <pre class="text-xs bg-base-200 p-3 rounded overflow-x-auto">{
+  "type": "res",
+  "id": "uuid-v4",
+  "ok": true,
+  "payload": { ... }
+  // 或 "error": {
+  //   "code": "...",
+  //   "message": "..."
+  // }
+}</pre>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-accent">事件消息结构</h5>
+                            <pre class="text-xs bg-base-200 p-3 rounded overflow-x-auto">{
+  "type": "event",
+  "event": "agent.stream",
+  "payload": {
+    "runId": "...",
+    "delta": "..."
+  },
+  "seq": 42,
+  "stateVersion": 7
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advantages -->
+        <section id="advantages" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">
+                <span class="section-number">3.</span> 架构优势与特点
+            </h2>
+
+            <!-- Local-First -->
+            <div id="local-first" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">3.1.</span> 本地优先(Local-First)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">数据主权保障</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">维度</th>
+                                    <th class="border border-base-300 p-3 text-left">传统 SaaS AI 助手</th>
+                                    <th class="border border-base-300 p-3 text-left">OpenClaw 本地优先</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">数据存储位置</td>
+                                    <td class="border border-base-300 p-3">服务商云端服务器</td>
+                                    <td class="border border-base-300 p-3">用户本地设备<a href="https://docs.openclaw.ai/concepts/agent-workspace" class="citation">[190]</a>
+                                    </td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">数据访问控制</td>
+                                    <td class="border border-base-300 p-3">服务商条款约束</td>
+                                    <td class="border border-base-300 p-3">用户完全控制</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">服务可用性依赖</td>
+                                    <td class="border border-base-300 p-3">网络连接 + 服务商运营</td>
+                                    <td class="border border-base-300 p-3">本地运行,可选网络<a href="https://blog.frognew.com/2026/02/openclaw-deployment-guide.html" class="citation">[176]</a>
+                                    </td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">数据可携带性</td>
+                                    <td class="border border-base-300 p-3">导出受限或付费</td>
+                                    <td class="border border-base-300 p-3">标准文件格式,自由迁移</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">合规审计</td>
+                                    <td class="border border-base-300 p-3">依赖服务商认证</td>
+                                    <td class="border border-base-300 p-3">完全透明,自主审计</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">隐私保护设计</h4>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-primary">敏感信息不出境</h5>
+                            <p class="text-sm">默认本地存储,模型 API 调用仅传输必要提示文本</p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-secondary">本地模型推理支持</h5>
+                            <p class="text-sm">Ollama、LM Studio 等集成,实现零云端传输<a href="https://aimlapi.com/blog/openclaw-a-practical-guide-to-local-ai-agents-for-developers" class="citation">[174]</a>
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-base-300 shadow-sm">
+                            <h5 class="font-semibold mb-3 text-accent">审计日志本地留存</h5>
+                            <p class="text-sm">结构化日志本地存储,可选导出到 SIEM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production-Grade -->
+            <div id="production-grade" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">3.2.</span> 生产级运行时平台
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">高可用性保障</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">机制</th>
+                                    <th class="border border-base-300 p-3 text-left">实现</th>
+                                    <th class="border border-base-300 p-3 text-left">效果</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">进程监控</td>
+                                    <td class="border border-base-300 p-3">launchd(macOS) / systemd(Linux)自动重启</td>
+                                    <td class="border border-base-300 p-3">崩溃后秒级恢复<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>
+                                    </td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">状态持久化</td>
+                                    <td class="border border-base-300 p-3">可选 SQLite/文件系统会话存储</td>
+                                    <td class="border border-base-300 p-3">重启后上下文恢复</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">健康检查</td>
+                                    <td class="border border-base-300 p-3">
+                                        <code>health</code> 方法 + Dashboard 状态页
+                                    </td>
+                                    <td class="border border-base-300 p-3">主动故障发现</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">性能优化</h4>
+
+                    <div class="pull-quote">
+                        "流式响应支持:SSE/WebSocket 流式传输,首 token 延迟显著降低。"
+                    </div>
+
+                    <p class="leading-relaxed">
+                        OpenClaw 通过事件驱动异步架构、连接池与资源复用、流式响应支持等技术手段,实现了卓越的性能表现<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>。Node.js 事件循环的单线程高并发特性,使得单个 Gateway 进程能够同时管理数十个信道连接和多个智能体会话。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div id="security" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">3.3.</span> 高安全性(High Security)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">网络安全模型</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">策略</th>
+                                    <th class="border border-base-300 p-3 text-left">实现</th>
+                                    <th class="border border-base-300 p-3 text-left">目的</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">Loopback-First</td>
+                                    <td class="border border-base-300 p-3">默认
+                                        <code>127.0.0.1:18789</code>
+                                    </td>
+                                    <td class="border border-base-300 p-3">最小攻击面<a href="https://openclaw-ai.online/architecture/" class="citation">[173]</a>
+                                    </td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">默认拒绝入站</td>
+                                    <td class="border border-base-300 p-3">无显式配置拒绝远程连接</td>
+                                    <td class="border border-base-300 p-3">防止未授权访问</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">TLS/mTLS 加密</td>
+                                    <td class="border border-base-300 p-3">反向代理或内置 TLS</td>
+                                    <td class="border border-base-300 p-3">传输层安全</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">认证与授权体系</h4>
+
+                    <p class="leading-relaxed mb-6">
+                        OpenClaw 实现了多层认证体系,包括 API Key、会话令牌、可选 mTLS<a href="https://www.giskard.ai/knowledge/openclaw-security-vulnerabilities-include-data-leakage-and-prompt-injection-risks" class="citation">[191]</a>。基于角色的访问控制(RBAC)将权限分为 operator、node、adapter 三类角色,形成点符号权限树<a href="https://blog.csdn.net/u013134676/article/details/157611299" class="citation">[140]</a>。
+                    </p>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+                        <h5 class="font-semibold mb-3 text-yellow-800">安全事件案例</h5>
+                        <p class="text-sm text-yellow-700">
+                            2026 年 1 月的安全事件暴露了早期版本的认证绕过漏洞<a href="https://thehackernews.com/2026/02/openclaw-bug-enables-one-click-remote.html" class="citation">[196]</a>,后续版本强化了令牌验证和 CSRF 防护,体现了项目对安全性的持续关注和快速响应能力。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extensibility -->
+            <div id="extensibility" class="mb-12">
+                <h3 class="serif text-2xl font-bold mb-6">
+                    <span class="section-number">3.4.</span> 可扩展性(Extensibility)
+                </h3>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">水平扩展能力</h4>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-base-300 text-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th class="border border-base-300 p-3 text-left">场景</th>
+                                    <th class="border border-base-300 p-3 text-left">方案</th>
+                                    <th class="border border-base-300 p-3 text-left">说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">网关集群部署</td>
+                                    <td class="border border-base-300 p-3">多 Gateway + 负载均衡</td>
+                                    <td class="border border-base-300 p-3">状态外部化至 Redis</td>
+                                </tr>
+                                <tr class="bg-base-100">
+                                    <td class="border border-base-300 p-3 font-medium">智能体负载均衡</td>
+                                    <td class="border border-base-300 p-3">智能体池 + 任务队列</td>
+                                    <td class="border border-base-300 p-3">基于能力标签的路由</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-base-300 p-3 font-medium">状态外部化存储</td>
+                                    <td class="border border-base-300 p-3">Redis / PostgreSQL</td>
+                                    <td class="border border-base-300 p-3">会话共享,故障转移</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="serif text-xl font-semibold mb-4">生态扩展</h4>
+
+                    <div class="pull-quote">
+                        "ClawdHub 提供 700+ 社区技能,涵盖 API 集成、数据处理、自动化工作流等类别。"
+                    </div>
+
+                    <p class="leading-relaxed">
+                        OpenClaw 的开放插件市场 ClawdHub<a href="https://help.apiyi.com/en/openclaw-extensions-ecosystem-guide-en.html" class="citation">[127]</a> 展现了强大的生态扩展能力。通过 MIT 协议开源和社区贡献机制,项目吸引了活跃的开发者生态。企业级用户还可获得官方托管服务、SLA 保障和专属支持<a href="https://help.apiyi.com/en/openclaw-extensions-ecosystem-guide-en.html" class="citation">[148]</a>。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenarios -->
+        <section id="scenarios" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">
+                <span class="section-number">4.</span> 典型应用场景与架构映射
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                    <h3 class="serif text-xl font-semibold mb-4">个人 AI 助手部署</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2 text-primary">单用户本地模式</h4>
+                            <p class="text-sm leading-relaxed">
+                                最简部署:单台 MacBook/Linux 笔记本,Gateway 本地运行,通过 Telegram/WhatsApp 交互,模型使用 Claude API 或本地 Ollama。零基础设施成本,完全隐私保护。
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2 text-secondary">多设备同步架构</h4>
+                            <p class="text-sm leading-relaxed">
+                                iPhone/Android 配套作为 Gateway 的"节点",提供相机、GPS、麦克风等移动能力,执行结果同步回主设备。配对流程通过二维码或短码完成,建立端到端加密通道。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg border border-base-300 shadow-sm">
+                    <h3 class="serif text-xl font-semibold mb-4">企业级智能体平台</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2 text-primary">多租户隔离方案</h4>
+                            <p class="text-sm leading-relaxed">
+                                通过工作区隔离 + 沙箱配置实现逻辑多租户:每个团队/项目独立工作区,Agent 实例隔离,共享 Gateway 基础设施。进阶部署采用多 Gateway 实例 + 负载均衡。
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2 text-secondary">集中管控与审计</h4>
+                            <p class="text-sm leading-relaxed">
+                                集中身份源(LDAP/SSO)集成、操作日志集中收集(SIEM 集成)、预批准技能白名单、网络出口代理和 DLP 检查等企业级安全特性。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-lg border border-base-300 shadow-sm">
+                <h3 class="serif text-xl font-semibold mb-6">自动化工作流引擎</h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-medium mb-4 text-primary">定时任务调度(Cron Agent)</h4>
+                        <p class="text-sm leading-relaxed mb-4">
+                            <code class="bg-base-300 px-2 py-1 rounded text-xs">openclaw cron add "&lt;cron&gt;" "&lt;command&gt;"</code> 配置定时任务<a href="https://binds.ch/blog/openclaw-systems-analysis" class="citation">[183]</a>。Cron Agent 作为特殊 Agent 实例,在指定时间唤醒,执行预设工作流。
+                        </p>
+                        <div class="bg-base-100 p-4 rounded text-sm">
+                            <strong>典型用例:</strong>每日 8 AM 早间简报(日历摘要、邮件优先级排序、待办提醒)
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-medium mb-4 text-secondary">事件驱动响应链</h4>
+                        <p class="text-sm leading-relaxed mb-4">
+                            通过 Webhook、Gmail Pub/Sub、文件系统监视等触发器,构建事件驱动的自动化链。智能体根据预定义规则自动响应外部事件。
+                        </p>
+                        <div class="bg-base-100 p-4 rounded text-sm">
+                            <strong>示例流程:</strong>GitHub 新 Issue → 自动分类 → 创建 Notion 页面 → Slack 通知 → 分配工程师
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion" class="mb-16">
+            <h2 class="serif text-3xl font-bold mb-8">结论</h2>
+
+            <div class="bg-gradient-to-br from-primary/5 to-secondary/5 p-8 rounded-lg border border-base-300">
+                <h3 class="serif text-2xl font-bold mb-6 text-center">架构创新总结</h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h4 class="font-semibold mb-4 text-primary">技术架构亮点</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mr-2 mt-1"></i>
+                                <span><strong>Gateway-Centric</strong>:集中式控制平面简化系统复杂度</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mr-2 mt-1"></i>
+                                <span><strong>本地优先</strong>:确保数据主权与离线可用性</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mr-2 mt-1"></i>
+                                <span><strong>Docker 沙箱</strong>:提供多层次安全隔离</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mr-2 mt-1"></i>
+                                <span><strong>模型无关</strong>:支持云 API 与本地模型的灵活切换</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold mb-4 text-secondary">核心价值优势</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-shield-alt text-secondary mr-2 mt-1"></i>
+                                <span><strong>安全性</strong>:多层防护机制保障用户数据安全</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-expand-arrows-alt text-secondary mr-2 mt-1"></i>
+                                <span><strong>可扩展性</strong>:模块化设计支持各种定制需求</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-plug text-secondary mr-2 mt-1"></i>
+                                <span><strong>平台覆盖</strong>:支持 12+ 主流通讯平台接入</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-users text-secondary mr-2 mt-1"></i>
+                                <span><strong>社区生态</strong>:700+ 技能插件与活跃贡献者</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-lg leading-relaxed mb-6">
+                        OpenClaw 通过其创新的架构设计,成功解决了个人 AI 助手领域的关键挑战:如何在保障数据主权和隐私安全的前提下,提供强大而灵活的智能体功能。其 Gateway-Centric 架构不仅简化了系统复杂度,还为多平台协作和安全隔离提供了坚实基础。
+                    </p>
+
+                    <div class="pull-quote">
+                        "OpenClaw 代表了下一代个人 AI 助手的技术方向——以用户为中心,以安全为基石,以开放生态为驱动。"
+                    </div>
+
+                    <p class="text-sm text-secondary mt-8">
+                        随着 AI 技术的快速发展,OpenClaw 的架构理念和工程实践为整个行业提供了宝贵的参考,展现了如何在云原生时代重新定义个人计算的未来。
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in TOC
+        const sections = document.querySelectorAll('section[id], div[id]');
+        const tocLinks = document.querySelectorAll('.toc-fixed a[href^="#"]');
+
+        function highlightActiveSection() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('font-bold', 'text-primary');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('font-bold', 'text-primary');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', highlightActiveSection);
+        highlightActiveSection(); // Initial call
+    </script>
+</body>
+</html>
