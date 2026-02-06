@@ -5,25 +5,22 @@
 
 SERVER="root@43.167.189.165"
 DEPLOY_PATH="/var/www/staryblog"
-REPO_URL="https://github.com/YOUR_USERNAME/StaryBlog.git"
 
 echo "🚀 开始部署 StaryBlog 到 dongjingTest..."
 
 # 1. 连接到服务器并创建目录(如果不存在)
 echo "📁 在服务器上创建部署目录..."
-ssh ${SERVER} "mkdir -p ${DEPLOY_PATH}"
+ssh ${SERVER} "mkdir -p ${DEPLOY_PATH}/posts"
 
-# 2. 在服务器上克隆或更新仓库
+# 2. 使用 rsync 同步文件
 echo "📥 同步代码到服务器..."
-ssh ${SERVER} "
-    if [ -d ${DEPLOY_PATH}/.git ]; then
-        cd ${DEPLOY_PATH}
-        git pull origin main
-    else
-        rm -rf ${DEPLOY_PATH}
-        git clone ${REPO_URL} ${DEPLOY_PATH}
-    fi
-"
+rsync -avz --delete \
+    --exclude '.git' \
+    --exclude 'node_modules' \
+    --exclude '.DS_Store' \
+    --exclude 'deploy.sh' \
+    /Users/geshishuai/Documents/learn/aiWorkspace/github/StaryBlog/ \
+    ${SERVER}:${DEPLOY_PATH}/
 
 # 3. 设置 Nginx 配置
 echo "⚙️  配置 Nginx..."
@@ -42,7 +39,7 @@ server {
     gzip_min_length 1000;
 
     # 静态文件缓存
-    location ~* \\.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
         expires 30d;
         add_header Cache-Control \"public, immutable\";
     }
