@@ -1,0 +1,12 @@
+{
+  "slug": "openclaw-architecture",
+  "title": "OpenClaw 技术架构深度研究",
+  "date": "2026-02-05",
+  "category": "AI 架构",
+  "categoryColor": "blue",
+  "description": "OpenClaw 采用独特的 Gateway-centric architecture（以网关为中心的架构），这一设计范式将整个系统的控制平面集中于单一长期运行的 Gateway 进程中。与传统的分布式微服务架构不同，OpenClaw 刻意选择了这种集中式设计，其核心动机在于确保系统的 可靠性、安全性与简洁性。Gateway 作为单一控制源（single source），承担了消息路由、会话管理、",
+  "hasMd": true,
+  "hasHtml": false,
+  "created": "2026-02-05T22:48:08Z",
+  "updated": "2026-02-05T22:48:08Z"
+}

@@ -5,132 +5,661 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stary's Blog</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
+        :root {
+            --primary: #18181B;
+            --secondary: #3F3F46;
+            --accent: #EC4899;
+            --accent-hover: #DB2777;
+            --bg: #FAFAFA;
+            --surface: #FFFFFF;
+            --text: #09090B;
+            --text-muted: #71717A;
+            --border: #E4E4E7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            font-family: 'Jost', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-            font-family: 'Noto Serif SC', serif;
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Bodoni Moda', serif;
             font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--primary);
         }
-        .prose h1 { font-size: 2.25rem; margin-top: 2rem; margin-bottom: 1rem; }
-        .prose h2 { font-size: 1.875rem; margin-top: 2rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
-        .prose h3 { font-size: 1.5rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        .prose h4 { font-size: 1.25rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-        .prose p { margin-bottom: 1rem; line-height: 1.8; }
-        .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-        .prose li { margin-bottom: 0.5rem; }
+
+        /* Article Prose Styles */
+        .prose {
+            max-width: 100%;
+        }
+
+        /* Desktop: wider content */
+        @media (min-width: 1024px) {
+            .prose {
+                max-width: 42rem;
+            }
+        }
+
+        .prose h1 {
+            font-size: 1.75rem;
+            line-height: 1.2;
+            margin-bottom: 1.25rem;
+        }
+
+        .prose h2 {
+            font-size: 1.5rem;
+            line-height: 1.3;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .prose h3 {
+            font-size: 1.25rem;
+            line-height: 1.4;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prose h4 {
+            font-size: 1.125rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .prose h1 { font-size: 2.5rem; }
+            .prose h2 { font-size: 1.875rem; margin-top: 3rem; }
+            .prose h3 { font-size: 1.5rem; margin-top: 2rem; }
+            .prose h4 { font-size: 1.25rem; }
+        }
+
+        .prose p {
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            color: #27272A;
+        }
+
+        @media (min-width: 768px) {
+            .prose p { font-size: 1.0625rem; }
+        }
+
+        .prose ul, .prose ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .prose ul, .prose ol { padding-left: 1.5rem; }
+        }
+
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+
         .prose ul { list-style-type: disc; }
         .prose ol { list-style-type: decimal; }
+
         .prose blockquote {
-            border-left: 4px solid #3b82f6;
+            border-left: 3px solid var(--accent);
             padding-left: 1rem;
             margin: 1.5rem 0;
-            color: #6b7280;
+            color: var(--text-muted);
             font-style: italic;
+            font-size: 1rem;
+            line-height: 1.7;
         }
+
+        @media (min-width: 768px) {
+            .prose blockquote {
+                padding-left: 1.25rem;
+                font-size: 1.125rem;
+                margin: 2rem 0;
+            }
+        }
+
         .prose code {
-            background: #f3f4f6;
-            padding: 0.2rem 0.4rem;
+            background: #F4F4F5;
+            color: var(--primary);
+            padding: 0.15rem 0.4rem;
             border-radius: 0.25rem;
-            font-size: 0.875rem;
+            font-size: 0.875em;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
         }
+
         .prose pre {
-            background: #1f2937;
+            background: var(--primary);
             padding: 1rem;
             border-radius: 0.5rem;
             overflow-x: auto;
-            margin-bottom: 1rem;
+            margin: 1.5rem 0;
         }
+
+        @media (min-width: 768px) {
+            .prose pre {
+                padding: 1.5rem;
+                border-radius: 0.75rem;
+                margin: 2rem 0;
+            }
+        }
+
         .prose pre code {
             background: transparent;
             padding: 0;
-            color: #e5e7eb;
+            color: #E4E4E7;
+            font-size: 0.8125rem;
         }
+
+        @media (min-width: 768px) {
+            .prose pre code { font-size: 0.875rem; }
+        }
+
         .prose table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1.5rem;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
+
+        @media (min-width: 768px) {
+            .prose table {
+                margin: 2rem 0;
+                font-size: 0.9375rem;
+                display: table;
+            }
+        }
+
         .prose th, .prose td {
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
+            border: 1px solid var(--border);
+            padding: 0.625rem 0.75rem;
             text-align: left;
         }
+
+        @media (min-width: 768px) {
+            .prose th, .prose td {
+                padding: 0.875rem 1rem;
+            }
+        }
+
         .prose th {
-            background: #f9fafb;
+            background: #F4F4F5;
             font-weight: 600;
+            font-family: 'Jost', sans-serif;
         }
+
+        .prose tr:hover {
+            background: #FAFAFA;
+        }
+
         .prose a {
-            color: #2563eb;
+            color: var(--accent);
             text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
         }
+
         .prose a:hover {
-            text-decoration: underline;
+            border-bottom-color: var(--accent);
         }
-        .prose strong { font-weight: 600; }
+
+        .prose strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
         .prose hr {
             border: none;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--border);
             margin: 2rem 0;
         }
-        #toc {
-            position: sticky;
-            top: 5rem;
+
+        @media (min-width: 768px) {
+            .prose hr { margin: 3rem 0; }
         }
+
+        .prose img {
+            border-radius: 0.5rem;
+            width: 100%;
+            height: auto;
+        }
+
+        @media (min-width: 768px) {
+            .prose img { border-radius: 0.75rem; }
+        }
+
+        /* TOC Styles */
+        #toc {
+            position: relative;
+            top: 0;
+        }
+
+        @media (min-width: 1024px) {
+            #toc {
+                position: sticky;
+                top: 6rem;
+            }
+        }
+
+        #toc h4 {
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
         #toc a {
-            color: #4b5563;
+            color: var(--text-muted);
             text-decoration: none;
             display: block;
-            padding: 0.25rem 0;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            transition: color 0.2s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+            margin-left: -0.75rem;
         }
+
+        @media (min-width: 768px) {
+            #toc a {
+                font-size: 0.875rem;
+                padding-left: 1rem;
+                margin-left: -1rem;
+            }
+        }
+
         #toc a:hover {
-            color: #2563eb;
+            color: var(--accent);
+            border-left-color: var(--accent);
         }
+
         #toc .toc-h2 {
             font-weight: 500;
-            margin-top: 0.75rem;
         }
+
         #toc .toc-h3 {
-            font-size: 0.875rem;
-            padding-left: 1rem;
-            color: #6b7280;
+            font-size: 0.75rem;
+            padding-left: 1.25rem;
+            margin-left: -1.25rem;
         }
+
+        @media (min-width: 768px) {
+            #toc .toc-h3 {
+                font-size: 0.8125rem;
+                padding-left: 1.5rem;
+                margin-left: -1.5rem;
+            }
+        }
+
+        /* Loading State */
         .loading {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 50vh;
+            gap: 1rem;
         }
+
+        @media (min-width: 768px) {
+            .loading { height: 60vh; }
+        }
+
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #e5e7eb;
-            border-top-color: #3b82f6;
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
+
+        @media (min-width: 768px) {
+            .spinner {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        .loading-text {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -0.25rem;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Mode Toggle */
+        #mode-toggle {
+            display: none;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            #mode-toggle { margin-bottom: 2rem; }
+        }
+
+        #mode-toggle.visible {
+            display: flex;
+        }
+
+        .mode-switch {
+            display: inline-flex;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            gap: 0.25rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            font-family: 'Jost', sans-serif;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        @media (min-width: 768px) {
+            .mode-btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.8125rem;
+                gap: 0.5rem;
+            }
+        }
+
+        .mode-btn:hover {
+            color: var(--primary);
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Visual Section */
+        .visual-section {
+            margin: 1.5rem 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: var(--primary);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
+        }
+
+        @media (min-width: 768px) {
+            .visual-section {
+                margin: 2rem 0;
+                border-radius: 1rem;
+                box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .visual-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .visual-section-header {
+                padding: 0.875rem 1.25rem;
+            }
+        }
+
+        .visual-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            color: #E4E4E7;
+            font-size: 0.75rem;
+            font-weight: 500;
+            font-family: 'Jost', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        @media (min-width: 768px) {
+            .visual-section-title {
+                font-size: 0.8125rem;
+                gap: 0.5rem;
+            }
+        }
+
+        .visual-section-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.1875rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.625rem;
+            font-weight: 600;
+            font-family: 'Jost', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (min-width: 768px) {
+            .visual-section-badge {
+                padding: 0.25rem 0.625rem;
+                font-size: 0.6875rem;
+            }
+        }
+
+        .visual-iframe {
+            width: 100%;
+            min-height: 320px;
+            border: none;
+            display: block;
+        }
+
+        @media (min-width: 768px) {
+            .visual-iframe { min-height: 400px; }
+        }
+
+        @media (min-width: 1024px) {
+            .visual-iframe { min-height: 480px; }
+        }
+
+        /* Article Card */
+        .article-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .article-card {
+                border-radius: 1rem;
+            }
+        }
+
+        .article-content {
+            padding: 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .article-content { padding: 2rem; }
+        }
+
+        /* Category Badge */
+        .category-badge {
+            display: inline-flex;
+            padding: 0.1875rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'Jost', sans-serif;
+        }
+
+        @media (min-width: 768px) {
+            .category-badge {
+                padding: 0.25rem 0.625rem;
+                font-size: 0.6875rem;
+            }
+        }
+
+        .category-blue { background: #DBEAFE; color: #1E40AF; }
+        .category-red { background: #FEE2E2; color: #991B1B; }
+        .category-green { background: #D1FAE5; color: #065F46; }
+        .category-purple { background: #E9D5FF; color: #6B21A8; }
+        .category-pink { background: #FCE7F3; color: #9D174D; }
+        .category-yellow { background: #FEF3C7; color: #92400E; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        /* Hidden State */
+        .hidden-content {
+            display: none !important;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* TOC Container - show/hide based on screen size */
+        #toc-container {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            #toc-container {
+                display: block;
+            }
+        }
+
+        /* Mobile TOC as collapsible section */
+        #toc-mobile {
+            display: block;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (min-width: 1024px) {
+            #toc-mobile { display: none; }
+        }
+
+        .toc-mobile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .toc-mobile-content {
+            display: none;
+            margin-top: 0.75rem;
+        }
+
+        .toc-mobile-content.open {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-screen">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-gray-900">Stary's Blog</a>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-gray-900 transition-colors">首页</a>
-                    <a href="#about" class="text-gray-700 hover:text-gray-900 transition-colors">关于</a>
-                    <a href="https://github.com/" target="_blank" class="text-gray-700 hover:text-gray-900 transition-colors">GitHub</a>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between h-14 sm:h-16 items-center">
+                <a href="/" class="text-lg sm:text-xl font-semibold" style="font-family: 'Bodoni Moda', serif; color: var(--primary);">
+                    Stary's Blog
+                </a>
+                <div class="flex items-center gap-6 sm:gap-8">
+                    <a href="/" class="nav-link text-sm">首页</a>
+                    <a href="#about" class="nav-link text-sm">关于</a>
                 </div>
             </div>
         </div>
@@ -139,22 +668,82 @@
     <!-- Loading -->
     <div id="loading" class="loading">
         <div class="spinner"></div>
+        <span class="loading-text">加载中</span>
     </div>
 
     <!-- Content -->
     <div id="content" class="hidden">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex gap-8">
-                <!-- Main Content -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <!-- Article Header -->
+            <header id="article-header" class="mb-8 sm:mb-12 fade-in-up">
+                <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 mb-3 sm:mb-4">
+                    <span id="header-date"></span>
+                    <span class="w-1 h-1 bg-zinc-300 rounded-full"></span>
+                    <span id="header-category" class="category-badge"></span>
+                </div>
+                <h1 id="header-title" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight mb-4 sm:mb-6"></h1>
+                <p id="header-description" class="text-base sm:text-lg text-zinc-600 leading-relaxed"></p>
+            </header>
+
+            <!-- Mode Toggle -->
+            <div id="mode-toggle">
+                <div class="mode-switch">
+                    <button onclick="showMD()" class="mode-btn" id="btn-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>文章</span>
+                    </button>
+                    <button onclick="showHTML()" class="mode-btn" id="btn-html">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <span>可视化</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:gap-12">
                 <main class="flex-1 min-w-0">
-                    <article id="article" class="prose max-w-none bg-white rounded-lg shadow-sm p-8 md:p-12">
+                    <!-- Article Content -->
+                    <article id="article" class="article-card">
+                        <div class="article-content">
+                            <div class="prose"></div>
+                        </div>
                     </article>
+
+                    <!-- Mobile TOC -->
+                    <div id="toc-mobile">
+                        <div class="toc-mobile-header" onclick="toggleMobileTOC()">
+                            <h4 class="font-semibold text-sm text-zinc-900">目录</h4>
+                            <svg id="toc-chevron" class="w-5 h-5 text-zinc-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        <div id="toc-mobile-content" class="toc-mobile-content">
+                            <div id="toc-list-mobile"></div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Section -->
+                    <div id="visual-section" class="visual-section hidden">
+                        <div class="visual-section-header">
+                            <div class="visual-section-title">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <span>交互式可视化</span>
+                            </div>
+                            <span class="visual-section-badge">Interactive</span>
+                        </div>
+                        <iframe id="visual-iframe" class="visual-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                    </div>
                 </main>
 
-                <!-- TOC Sidebar -->
-                <aside id="toc-container" class="hidden lg:block w-64 flex-shrink-0">
-                    <div id="toc" class="text-sm">
-                        <h4 class="font-semibold text-gray-900 mb-3">目录</h4>
+                <!-- Desktop TOC Sidebar -->
+                <aside id="toc-container" class="hidden lg:block w-52 xl:w-56 flex-shrink-0">
+                    <div id="toc">
+                        <h4>目录</h4>
                         <div id="toc-list"></div>
                     </div>
                 </aside>
@@ -163,25 +752,26 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8 mt-16">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-400">
-                © 2026 Stary's Blog. Built with
-                <a href="https://tailwindcss.com" target="_blank" class="text-blue-400 hover:text-blue-300">Tailwind CSS</a>
+    <footer class="bg-zinc-900 text-white py-8 sm:py-12 mt-12 sm:mt-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+            <p class="text-zinc-400 text-xs sm:text-sm">
+                © 2026 Stary's Blog
             </p>
         </div>
     </footer>
 
     <script>
-        // Get post path from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
         const postPath = urlParams.get('post');
 
-        if (!postPath) {
+        if (!slug && !postPath) {
             window.location.href = '/';
         }
 
-        // Configure marked
+        let currentMode = 'md';
+        let postMeta = null;
+
         marked.setOptions({
             highlight: function(code, lang) {
                 if (lang && hljs.getLanguage(lang)) {
@@ -193,62 +783,212 @@
             gfm: true
         });
 
-        // Load and render markdown
-        fetch(`/posts/${postPath}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Post not found');
-                return response.text();
-            })
-            .then(markdown => {
-                // Render markdown
-                const html = marked.parse(markdown);
-                document.getElementById('article').innerHTML = html;
+        const categoryColors = {
+            blue: 'category-blue',
+            green: 'category-green',
+            red: 'category-red',
+            yellow: 'category-yellow',
+            purple: 'category-purple',
+            pink: 'category-pink',
+            indigo: 'category-purple',
+            gray: 'category-blue'
+        };
 
-                // Set page title
-                const h1 = document.querySelector('#article h1');
-                if (h1) {
-                    document.title = h1.textContent + ' - Stary\'s Blog';
-                }
+        function showMD() {
+            currentMode = 'md';
+            document.getElementById('article').classList.remove('hidden-content');
+            document.getElementById('visual-section').classList.add('hidden');
+            document.getElementById('toc-container').classList.remove('hidden');
+            document.getElementById('toc-mobile').classList.remove('hidden');
+            document.getElementById('btn-md').classList.add('active');
+            document.getElementById('btn-html').classList.remove('active');
+        }
 
-                // Generate TOC
-                const tocList = document.getElementById('toc-list');
-                const headings = document.querySelectorAll('#article h2, #article h3');
-                headings.forEach((heading, index) => {
-                    const id = 'heading-' + index;
-                    heading.id = id;
-                    const link = document.createElement('a');
-                    link.href = '#' + id;
-                    link.textContent = heading.textContent;
-                    link.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
-                    tocList.appendChild(link);
+        function showHTML() {
+            currentMode = 'html';
+            document.getElementById('article').classList.add('hidden-content');
+            document.getElementById('visual-section').classList.remove('hidden');
+            document.getElementById('toc-container').classList.add('hidden');
+            document.getElementById('toc-mobile').classList.add('hidden');
+            document.getElementById('btn-md').classList.remove('active');
+            document.getElementById('btn-html').classList.add('active');
+        }
+
+        function toggleMobileTOC() {
+            const content = document.getElementById('toc-mobile-content');
+            const chevron = document.getElementById('toc-chevron');
+            content.classList.toggle('open');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function loadPost() {
+            if (slug) {
+                loadNewFormat();
+            } else {
+                loadOldFormat();
+            }
+        }
+
+        function loadNewFormat() {
+            const bust = Date.now();
+            const metaPath = `/posts/${slug}/meta.json?v=${bust}`;
+            const contentPath = `/posts/${slug}/content.md?v=${bust}`;
+            const visualPath = `/posts/${slug}/visual.html?v=${bust}`;
+
+            fetch(metaPath)
+                .then(response => {
+                    if (!response.ok) throw new Error('Meta not found');
+                    return response.json();
+                })
+                .then(meta => {
+                    postMeta = meta;
+                    document.title = meta.title + ' — Stary\'s Blog';
+
+                    document.getElementById('header-title').textContent = meta.title;
+                    document.getElementById('header-date').textContent = meta.date;
+                    document.getElementById('header-description').textContent = meta.description || '';
+
+                    const catEl = document.getElementById('header-category');
+                    catEl.textContent = meta.category || '未分类';
+                    catEl.className = 'category-badge ' + (categoryColors[meta.categoryColor] || 'category-blue');
+
+                    if (meta.hasMd && meta.hasHtml) {
+                        document.getElementById('mode-toggle').classList.add('visible');
+                        showMD();
+                    } else if (meta.hasHtml) {
+                        document.getElementById('mode-toggle').classList.add('visible');
+                        showHTML();
+                    }
+
+                    const promises = [];
+
+                    if (meta.hasMd) {
+                        promises.push(
+                            fetch(contentPath)
+                                .then(r => {
+                                    if (!r.ok) throw new Error('Content not found');
+                                    return r.text();
+                                })
+                                .then(markdown => {
+                                    const html = marked.parse(markdown);
+                                    document.querySelector('#article .prose').innerHTML = html;
+                                    generateTOC();
+                                })
+                        );
+                    }
+
+                    if (meta.hasHtml) {
+                        promises.push(
+                            fetch(visualPath)
+                                .then(r => {
+                                    if (!r.ok) throw new Error('Visual not found');
+                                    return r.text();
+                                })
+                                .then(html => {
+                                    document.getElementById('visual-iframe').srcdoc = html;
+                                })
+                        );
+                    }
+
+                    return Promise.all(promises);
+                })
+                .then(() => {
+                    showContent();
+                })
+                .catch(error => {
+                    showError(error.message);
+                });
+        }
+
+        function loadOldFormat() {
+            fetch(`/posts/${postPath}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Post not found');
+                    return response.text();
+                })
+                .then(markdown => {
+                    const html = marked.parse(markdown);
+                    document.querySelector('#article .prose').innerHTML = html;
+
+                    const h1 = document.querySelector('#article .prose h1');
+                    if (h1) {
+                        document.title = h1.textContent + ' — Stary\'s Blog';
+                        document.getElementById('header-title').textContent = h1.textContent;
+                    }
+
+                    generateTOC();
+                    showContent();
+                })
+                .catch(error => {
+                    showError(error.message);
+                });
+        }
+
+        function generateTOC() {
+            const headings = document.querySelectorAll('#article .prose h2, #article .prose h3');
+
+            // Desktop TOC
+            const tocList = document.getElementById('toc-list');
+            tocList.innerHTML = '';
+
+            // Mobile TOC
+            const tocListMobile = document.getElementById('toc-list-mobile');
+            tocListMobile.innerHTML = '';
+
+            if (headings.length === 0) {
+                document.getElementById('toc-mobile').style.display = 'none';
+                return;
+            }
+
+            headings.forEach((heading, index) => {
+                const id = 'heading-' + index;
+                heading.id = id;
+
+                const link = document.createElement('a');
+                link.href = '#' + id;
+                link.textContent = heading.textContent;
+                link.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+
+                // Clone for mobile TOC
+                const linkMobile = link.cloneNode(true);
+                linkMobile.addEventListener('click', () => {
+                    document.getElementById('toc-mobile-content').classList.remove('open');
+                    document.getElementById('toc-chevron').classList.remove('rotate-180');
                 });
 
-                // Show content
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('content').classList.remove('hidden');
-
-                // Smooth scroll for anchor links
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function(e) {
-                        const href = this.getAttribute('href');
-                        if (href !== '#') {
-                            e.preventDefault();
-                            const target = document.querySelector(href);
-                            if (target) {
-                                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
-                        }
-                    });
-                });
-            })
-            .catch(error => {
-                document.getElementById('loading').innerHTML = `
-                    <div class="text-center">
-                        <p class="text-gray-500 mb-4">文章加载失败</p>
-                        <a href="/" class="text-blue-600 hover:underline">返回首页</a>
-                    </div>
-                `;
+                tocList.appendChild(link);
+                tocListMobile.appendChild(linkMobile);
             });
+        }
+
+        function showContent() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#') {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            });
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').innerHTML = `
+                <div class="text-center">
+                    <p class="text-zinc-500 mb-4">文章加载失败: ${msg}</p>
+                    <a href="/" class="text-pink-500 hover:underline">返回首页</a>
+                </div>
+            `;
+        }
+
+        loadPost();
     </script>
 </body>
 </html>
