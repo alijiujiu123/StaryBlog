@@ -17,20 +17,15 @@
             --secondary: #3F3F46;
             --accent: #EC4899;
             --accent-hover: #DB2777;
-            --bg: #FAFAFA;
-            --surface: #FFFFFF;
+            --bg: #FFFFFF;
+            --surface: #F9FAFB;
             --text: #09090B;
             --text-muted: #71717A;
             --border: #E4E4E7;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Jost', sans-serif;
@@ -41,7 +36,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Typography */
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Bodoni Moda', serif;
             font-weight: 600;
@@ -49,17 +43,26 @@
             color: var(--primary);
         }
 
-        /* Article Prose Styles */
-        .prose {
-            max-width: 100%;
+        /* Reading Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #A855F7);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.1s linear;
         }
 
-        /* Desktop: wider content */
-        @media (min-width: 1024px) {
-            .prose {
-                max-width: 42rem;
-            }
+        /* Article Header */
+        .article-hero {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
         }
+
+        /* Prose Styles */
+        .prose { max-width: 100%; }
 
         .prose h1 {
             font-size: 1.75rem;
@@ -70,7 +73,7 @@
         .prose h2 {
             font-size: 1.5rem;
             line-height: 1.3;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             margin-bottom: 0.75rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--border);
@@ -79,27 +82,28 @@
         .prose h3 {
             font-size: 1.25rem;
             line-height: 1.4;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             margin-bottom: 0.5rem;
         }
 
         .prose h4 {
             font-size: 1.125rem;
-            margin-top: 1.25rem;
+            margin-top: 1.5rem;
             margin-bottom: 0.5rem;
         }
 
         @media (min-width: 768px) {
-            .prose h1 { font-size: 2.5rem; }
-            .prose h2 { font-size: 1.875rem; margin-top: 3rem; }
-            .prose h3 { font-size: 1.5rem; margin-top: 2rem; }
+            .prose h1 { font-size: 2.25rem; }
+            .prose h2 { font-size: 1.75rem; margin-top: 3rem; }
+            .prose h3 { font-size: 1.375rem; margin-top: 2.25rem; }
             .prose h4 { font-size: 1.25rem; }
         }
 
         .prose p {
             margin-bottom: 1.25rem;
             font-size: 1rem;
-            color: #27272A;
+            color: #374151;
+            line-height: 1.8;
         }
 
         @media (min-width: 768px) {
@@ -117,6 +121,7 @@
 
         .prose li {
             margin-bottom: 0.5rem;
+            color: #374151;
         }
 
         .prose ul { list-style-type: disc; }
@@ -124,25 +129,27 @@
 
         .prose blockquote {
             border-left: 3px solid var(--accent);
-            padding-left: 1rem;
+            padding: 0.75rem 1rem;
             margin: 1.5rem 0;
             color: var(--text-muted);
             font-style: italic;
             font-size: 1rem;
             line-height: 1.7;
+            background: var(--surface);
+            border-radius: 0 0.5rem 0.5rem 0;
         }
 
         @media (min-width: 768px) {
             .prose blockquote {
-                padding-left: 1.25rem;
-                font-size: 1.125rem;
+                padding: 1rem 1.25rem;
+                font-size: 1.0625rem;
                 margin: 2rem 0;
             }
         }
 
         .prose code {
-            background: #F4F4F5;
-            color: var(--primary);
+            background: #F3F4F6;
+            color: #DB2777;
             padding: 0.15rem 0.4rem;
             border-radius: 0.25rem;
             font-size: 0.875em;
@@ -150,17 +157,17 @@
         }
 
         .prose pre {
-            background: var(--primary);
+            background: #1E1E2E;
             padding: 1rem;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             overflow-x: auto;
             margin: 1.5rem 0;
+            border: 1px solid #2D2D3F;
         }
 
         @media (min-width: 768px) {
             .prose pre {
                 padding: 1.5rem;
-                border-radius: 0.75rem;
                 margin: 2rem 0;
             }
         }
@@ -184,6 +191,7 @@
             display: block;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            border-radius: 0.5rem;
         }
 
         @media (min-width: 768px) {
@@ -201,20 +209,16 @@
         }
 
         @media (min-width: 768px) {
-            .prose th, .prose td {
-                padding: 0.875rem 1rem;
-            }
+            .prose th, .prose td { padding: 0.875rem 1rem; }
         }
 
         .prose th {
-            background: #F4F4F5;
+            background: var(--surface);
             font-weight: 600;
             font-family: 'Jost', sans-serif;
         }
 
-        .prose tr:hover {
-            background: #FAFAFA;
-        }
+        .prose tr:hover { background: var(--surface); }
 
         .prose a {
             color: var(--accent);
@@ -223,9 +227,7 @@
             transition: border-color 0.2s ease;
         }
 
-        .prose a:hover {
-            border-bottom-color: var(--accent);
-        }
+        .prose a:hover { border-bottom-color: var(--accent); }
 
         .prose strong {
             font-weight: 600;
@@ -243,79 +245,55 @@
         }
 
         .prose img {
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             width: 100%;
             height: auto;
         }
 
-        @media (min-width: 768px) {
-            .prose img { border-radius: 0.75rem; }
-        }
-
         /* TOC Styles */
         #toc {
-            position: relative;
-            top: 0;
-        }
-
-        @media (min-width: 1024px) {
-            #toc {
-                position: sticky;
-                top: 6rem;
-            }
+            position: sticky;
+            top: 5rem;
         }
 
         #toc h4 {
             font-family: 'Jost', sans-serif;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.6875rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             color: var(--text-muted);
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
 
         #toc a {
             color: var(--text-muted);
             text-decoration: none;
             display: block;
-            padding: 0.375rem 0;
+            padding: 0.3125rem 0;
+            padding-left: 0.875rem;
             font-size: 0.8125rem;
-            transition: color 0.2s ease;
-            border-left: 2px solid transparent;
-            padding-left: 0.75rem;
-            margin-left: -0.75rem;
-        }
-
-        @media (min-width: 768px) {
-            #toc a {
-                font-size: 0.875rem;
-                padding-left: 1rem;
-                margin-left: -1rem;
-            }
+            transition: all 0.2s ease;
+            border-left: 2px solid var(--border);
+            line-height: 1.4;
         }
 
         #toc a:hover {
-            color: var(--accent);
+            color: var(--primary);
             border-left-color: var(--accent);
         }
 
-        #toc .toc-h2 {
+        #toc a.active {
+            color: var(--accent);
+            border-left-color: var(--accent);
             font-weight: 500;
         }
 
+        #toc .toc-h2 { font-weight: 400; }
+
         #toc .toc-h3 {
             font-size: 0.75rem;
-            padding-left: 1.25rem;
-            margin-left: -1.25rem;
-        }
-
-        @media (min-width: 768px) {
-            #toc .toc-h3 {
-                font-size: 0.8125rem;
-                padding-left: 1.5rem;
-                margin-left: -1.5rem;
-            }
+            padding-left: 1.5rem;
         }
 
         /* Loading State */
@@ -324,12 +302,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 50vh;
+            height: 60vh;
             gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .loading { height: 60vh; }
         }
 
         .spinner {
@@ -341,13 +315,6 @@
             animation: spin 0.8s linear infinite;
         }
 
-        @media (min-width: 768px) {
-            .spinner {
-                width: 32px;
-                height: 32px;
-            }
-        }
-
         .loading-text {
             font-size: 0.8125rem;
             color: var(--text-muted);
@@ -355,9 +322,7 @@
             text-transform: uppercase;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Navigation */
         .nav-link {
@@ -366,9 +331,7 @@
             transition: color 0.2s ease;
         }
 
-        .nav-link:hover {
-            color: var(--primary);
-        }
+        .nav-link:hover { color: var(--primary); }
 
         .nav-link::after {
             content: '';
@@ -381,33 +344,24 @@
             transition: width 0.3s ease;
         }
 
-        .nav-link:hover::after {
-            width: 100%;
-        }
+        .nav-link:hover::after { width: 100%; }
 
         /* Mode Toggle */
         #mode-toggle {
             display: none;
             justify-content: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        @media (min-width: 768px) {
-            #mode-toggle { margin-bottom: 2rem; }
-        }
-
-        #mode-toggle.visible {
-            display: flex;
-        }
+        #mode-toggle.visible { display: flex; }
 
         .mode-switch {
             display: inline-flex;
-            background: white;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 0.5rem;
             padding: 0.25rem;
             gap: 0.25rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .mode-btn {
@@ -416,7 +370,7 @@
             gap: 0.375rem;
             padding: 0.5rem 0.875rem;
             border-radius: 0.375rem;
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             font-weight: 500;
             font-family: 'Jost', sans-serif;
             cursor: pointer;
@@ -426,38 +380,22 @@
             transition: all 0.2s ease;
         }
 
-        @media (min-width: 768px) {
-            .mode-btn {
-                padding: 0.625rem 1rem;
-                font-size: 0.8125rem;
-                gap: 0.5rem;
-            }
-        }
-
-        .mode-btn:hover {
-            color: var(--primary);
-        }
+        .mode-btn:hover { color: var(--primary); }
 
         .mode-btn.active {
             background: var(--primary);
             color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
         /* Visual Section */
         .visual-section {
-            margin: 1.5rem 0;
+            margin: 2rem 0;
             border-radius: 0.75rem;
             overflow: hidden;
-            background: var(--primary);
-            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
-        }
-
-        @media (min-width: 768px) {
-            .visual-section {
-                margin: 2rem 0;
-                border-radius: 1rem;
-                box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
-            }
+            background: #1E1E2E;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+            border: 1px solid #2D2D3F;
         }
 
         .visual-section-header {
@@ -465,32 +403,18 @@
             align-items: center;
             justify-content: space-between;
             padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @media (min-width: 768px) {
-            .visual-section-header {
-                padding: 0.875rem 1.25rem;
-            }
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .visual-section-title {
             display: flex;
             align-items: center;
-            gap: 0.375rem;
-            color: #E4E4E7;
-            font-size: 0.75rem;
+            gap: 0.5rem;
+            color: #A1A1AA;
+            font-size: 0.8125rem;
             font-weight: 500;
             font-family: 'Jost', sans-serif;
-            letter-spacing: 0.02em;
-        }
-
-        @media (min-width: 768px) {
-            .visual-section-title {
-                font-size: 0.8125rem;
-                gap: 0.5rem;
-            }
         }
 
         .visual-section-badge {
@@ -505,67 +429,27 @@
             letter-spacing: 0.05em;
         }
 
-        @media (min-width: 768px) {
-            .visual-section-badge {
-                padding: 0.25rem 0.625rem;
-                font-size: 0.6875rem;
-            }
-        }
-
         .visual-iframe {
             width: 100%;
-            min-height: 320px;
+            min-height: 400px;
             border: none;
             display: block;
-        }
-
-        @media (min-width: 768px) {
-            .visual-iframe { min-height: 400px; }
         }
 
         @media (min-width: 1024px) {
             .visual-iframe { min-height: 480px; }
         }
 
-        /* Article Card */
-        .article-card {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            overflow: hidden;
-        }
-
-        @media (min-width: 768px) {
-            .article-card {
-                border-radius: 1rem;
-            }
-        }
-
-        .article-content {
-            padding: 1.25rem;
-        }
-
-        @media (min-width: 768px) {
-            .article-content { padding: 2rem; }
-        }
-
         /* Category Badge */
         .category-badge {
             display: inline-flex;
-            padding: 0.1875rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.625rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-family: 'Jost', sans-serif;
-        }
-
-        @media (min-width: 768px) {
-            .category-badge {
-                padding: 0.25rem 0.625rem;
-                font-size: 0.6875rem;
-            }
         }
 
         .category-blue { background: #DBEAFE; color: #1E40AF; }
@@ -577,54 +461,29 @@
 
         /* Animations */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
 
-        /* Hidden State */
-        .hidden-content {
-            display: none !important;
-        }
+        .hidden-content { display: none !important; }
 
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            html {
-                scroll-behavior: auto;
-            }
-        }
-
-        /* TOC Container - show/hide based on screen size */
-        #toc-container {
-            display: none;
-        }
+        /* TOC containers */
+        #toc-container { display: none; }
 
         @media (min-width: 1024px) {
-            #toc-container {
-                display: block;
-            }
+            #toc-container { display: block; }
         }
 
-        /* Mobile TOC as collapsible section */
+        /* Mobile TOC */
         #toc-mobile {
             display: block;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
         }
 
         @media (min-width: 1024px) {
@@ -636,30 +495,95 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            padding: 0.5rem 0;
+            padding: 0.25rem 0;
         }
 
         .toc-mobile-content {
             display: none;
             margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
         }
 
-        .toc-mobile-content.open {
+        .toc-mobile-content.open { display: block; }
+
+        #toc-list-mobile a {
+            color: var(--text-muted);
+            text-decoration: none;
             display: block;
+            padding: 0.3125rem 0;
+            padding-left: 0.875rem;
+            font-size: 0.8125rem;
+            border-left: 2px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        #toc-list-mobile a:hover {
+            color: var(--primary);
+            border-left-color: var(--accent);
+        }
+
+        #toc-list-mobile .toc-h3 {
+            font-size: 0.75rem;
+            padding-left: 1.5rem;
+        }
+
+        /* Back to top */
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 50;
+        }
+
+        #back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #back-to-top:hover {
+            background: var(--accent);
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html { scroll-behavior: auto; }
         }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Reading Progress -->
+    <div id="progress-bar"></div>
+
     <!-- Navigation -->
     <nav class="bg-white/80 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 sm:h-16 items-center">
                 <a href="/" class="text-lg sm:text-xl font-semibold" style="font-family: 'Bodoni Moda', serif; color: var(--primary);">
                     Stary's Blog
                 </a>
                 <div class="flex items-center gap-6 sm:gap-8">
                     <a href="/" class="nav-link text-sm">首页</a>
-                    <a href="#about" class="nav-link text-sm">关于</a>
+                    <a href="/#about" class="nav-link text-sm">关于</a>
                 </div>
             </div>
         </div>
@@ -673,50 +597,64 @@
 
     <!-- Content -->
     <div id="content" class="hidden">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-            <!-- Article Header -->
-            <header id="article-header" class="mb-8 sm:mb-12 fade-in-up">
-                <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 mb-3 sm:mb-4">
-                    <span id="header-date"></span>
-                    <span class="w-1 h-1 bg-zinc-300 rounded-full"></span>
+        <!-- Article Hero Header -->
+        <header class="article-hero py-10 sm:py-14 md:py-20 fade-in-up">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center gap-3 text-sm text-zinc-500 mb-4 sm:mb-5">
+                    <a href="/" class="hover:text-zinc-800 transition-colors">首页</a>
+                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
                     <span id="header-category" class="category-badge"></span>
                 </div>
-                <h1 id="header-title" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight mb-4 sm:mb-6"></h1>
-                <p id="header-description" class="text-base sm:text-lg text-zinc-600 leading-relaxed"></p>
-            </header>
-
-            <!-- Mode Toggle -->
-            <div id="mode-toggle">
-                <div class="mode-switch">
-                    <button onclick="showMD()" class="mode-btn" id="btn-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <span>文章</span>
-                    </button>
-                    <button onclick="showHTML()" class="mode-btn" id="btn-html">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        <span>可视化</span>
-                    </button>
+                <h1 id="header-title" class="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] leading-tight mb-4 sm:mb-6"></h1>
+                <p id="header-description" class="text-base sm:text-lg text-zinc-500 leading-relaxed max-w-2xl"></p>
+                <div class="flex items-center gap-3 mt-6 sm:mt-8 text-sm text-zinc-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span id="header-date"></span>
+                    <span class="w-1 h-1 bg-zinc-300 rounded-full"></span>
+                    <span id="header-readtime"></span>
                 </div>
             </div>
+        </header>
 
-            <div class="flex flex-col lg:flex-row lg:gap-12">
-                <main class="flex-1 min-w-0">
-                    <!-- Article Content -->
-                    <article id="article" class="article-card">
-                        <div class="article-content">
-                            <div class="prose"></div>
-                        </div>
-                    </article>
+        <!-- Mode Toggle -->
+        <div id="mode-toggle">
+            <div class="mode-switch">
+                <button onclick="showMD()" class="mode-btn" id="btn-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>文章</span>
+                </button>
+                <button onclick="showHTML()" class="mode-btn" id="btn-html">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>可视化</span>
+                </button>
+            </div>
+        </div>
 
+        <!-- Main Layout -->
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
+            <div class="flex flex-col lg:flex-row lg:gap-16">
+                <!-- Article Content -->
+                <main class="flex-1 min-w-0 max-w-3xl">
                     <!-- Mobile TOC -->
                     <div id="toc-mobile">
                         <div class="toc-mobile-header" onclick="toggleMobileTOC()">
-                            <h4 class="font-semibold text-sm text-zinc-900">目录</h4>
-                            <svg id="toc-chevron" class="w-5 h-5 text-zinc-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <h4 class="font-semibold text-sm text-zinc-700" style="font-family: 'Jost', sans-serif;">
+                                <span style="display:inline-flex;align-items:center;gap:0.375rem;">
+                                    <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                                    </svg>
+                                    目录
+                                </span>
+                            </h4>
+                            <svg id="toc-chevron" class="w-5 h-5 text-zinc-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </div>
@@ -724,6 +662,10 @@
                             <div id="toc-list-mobile"></div>
                         </div>
                     </div>
+
+                    <article id="article">
+                        <div class="prose"></div>
+                    </article>
 
                     <!-- Visual Section -->
                     <div id="visual-section" class="visual-section hidden">
@@ -741,7 +683,7 @@
                 </main>
 
                 <!-- Desktop TOC Sidebar -->
-                <aside id="toc-container" class="hidden lg:block w-52 xl:w-56 flex-shrink-0">
+                <aside id="toc-container" class="w-48 xl:w-52 flex-shrink-0">
                     <div id="toc">
                         <h4>目录</h4>
                         <div id="toc-list"></div>
@@ -751,11 +693,18 @@
         </div>
     </div>
 
+    <!-- Back to top -->
+    <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="返回顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
+
     <!-- Footer -->
-    <footer class="bg-zinc-900 text-white py-8 sm:py-12 mt-12 sm:mt-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+    <footer class="bg-zinc-900 text-white py-8 sm:py-12 mt-0">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p class="text-zinc-400 text-xs sm:text-sm">
-                © 2026 Stary's Blog
+                &copy; 2026 Stary's Blog
             </p>
         </div>
     </footer>
@@ -794,6 +743,13 @@
             gray: 'category-blue'
         };
 
+        function estimateReadTime(text) {
+            const words = text.replace(/[#*`>\-|]/g, '').trim().split(/\s+/).length;
+            const cjkChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+            const minutes = Math.ceil((words + cjkChars) / 400);
+            return Math.max(1, minutes) + ' 分钟阅读';
+        }
+
         function showMD() {
             currentMode = 'md';
             document.getElementById('article').classList.remove('hidden-content');
@@ -821,6 +777,63 @@
             chevron.classList.toggle('rotate-180');
         }
 
+        // Reading progress bar
+        function updateProgress() {
+            const article = document.getElementById('article');
+            if (!article || currentMode !== 'md') {
+                document.getElementById('progress-bar').style.width = '0%';
+                return;
+            }
+            const rect = article.getBoundingClientRect();
+            const articleTop = rect.top + window.scrollY;
+            const articleHeight = rect.height;
+            const scrolled = window.scrollY - articleTop;
+            const progress = Math.min(100, Math.max(0, (scrolled / (articleHeight - window.innerHeight)) * 100));
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+
+        // Back to top button
+        function updateBackToTop() {
+            const btn = document.getElementById('back-to-top');
+            if (window.scrollY > 400) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        }
+
+        // TOC active state tracking
+        let tocHeadings = [];
+
+        function updateActiveTOC() {
+            if (tocHeadings.length === 0) return;
+
+            let activeId = '';
+            for (const heading of tocHeadings) {
+                const el = document.getElementById(heading);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 100) {
+                        activeId = heading;
+                    }
+                }
+            }
+
+            document.querySelectorAll('#toc a').forEach(a => {
+                if (a.getAttribute('href') === '#' + activeId) {
+                    a.classList.add('active');
+                } else {
+                    a.classList.remove('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', function() {
+            updateProgress();
+            updateBackToTop();
+            updateActiveTOC();
+        }, { passive: true });
+
         function loadPost() {
             if (slug) {
                 loadNewFormat();
@@ -831,24 +844,24 @@
 
         function loadNewFormat() {
             const bust = Date.now();
-            const metaPath = `/posts/${slug}/meta.json?v=${bust}`;
-            const contentPath = `/posts/${slug}/content.md?v=${bust}`;
-            const visualPath = `/posts/${slug}/visual.html?v=${bust}`;
+            const metaPath = '/posts/' + slug + '/meta.json?v=' + bust;
+            const contentPath = '/posts/' + slug + '/content.md?v=' + bust;
+            const visualPath = '/posts/' + slug + '/visual.html?v=' + bust;
 
             fetch(metaPath)
-                .then(response => {
+                .then(function(response) {
                     if (!response.ok) throw new Error('Meta not found');
                     return response.json();
                 })
-                .then(meta => {
+                .then(function(meta) {
                     postMeta = meta;
-                    document.title = meta.title + ' — Stary\'s Blog';
+                    document.title = meta.title + " \u2014 Stary's Blog";
 
                     document.getElementById('header-title').textContent = meta.title;
                     document.getElementById('header-date').textContent = meta.date;
                     document.getElementById('header-description').textContent = meta.description || '';
 
-                    const catEl = document.getElementById('header-category');
+                    var catEl = document.getElementById('header-category');
                     catEl.textContent = meta.category || '未分类';
                     catEl.className = 'category-badge ' + (categoryColors[meta.categoryColor] || 'category-blue');
 
@@ -860,17 +873,18 @@
                         showHTML();
                     }
 
-                    const promises = [];
+                    var promises = [];
 
                     if (meta.hasMd) {
                         promises.push(
                             fetch(contentPath)
-                                .then(r => {
+                                .then(function(r) {
                                     if (!r.ok) throw new Error('Content not found');
                                     return r.text();
                                 })
-                                .then(markdown => {
-                                    const html = marked.parse(markdown);
+                                .then(function(markdown) {
+                                    document.getElementById('header-readtime').textContent = estimateReadTime(markdown);
+                                    var html = marked.parse(markdown);
                                     document.querySelector('#article .prose').innerHTML = html;
                                     generateTOC();
                                 })
@@ -880,11 +894,11 @@
                     if (meta.hasHtml) {
                         promises.push(
                             fetch(visualPath)
-                                .then(r => {
+                                .then(function(r) {
                                     if (!r.ok) throw new Error('Visual not found');
                                     return r.text();
                                 })
-                                .then(html => {
+                                .then(function(html) {
                                     document.getElementById('visual-iframe').srcdoc = html;
                                 })
                         );
@@ -892,66 +906,66 @@
 
                     return Promise.all(promises);
                 })
-                .then(() => {
+                .then(function() {
                     showContent();
                 })
-                .catch(error => {
+                .catch(function(error) {
                     showError(error.message);
                 });
         }
 
         function loadOldFormat() {
-            fetch(`/posts/${postPath}`)
-                .then(response => {
+            fetch('/posts/' + postPath)
+                .then(function(response) {
                     if (!response.ok) throw new Error('Post not found');
                     return response.text();
                 })
-                .then(markdown => {
-                    const html = marked.parse(markdown);
+                .then(function(markdown) {
+                    document.getElementById('header-readtime').textContent = estimateReadTime(markdown);
+                    var html = marked.parse(markdown);
                     document.querySelector('#article .prose').innerHTML = html;
 
-                    const h1 = document.querySelector('#article .prose h1');
+                    var h1 = document.querySelector('#article .prose h1');
                     if (h1) {
-                        document.title = h1.textContent + ' — Stary\'s Blog';
+                        document.title = h1.textContent + " \u2014 Stary's Blog";
                         document.getElementById('header-title').textContent = h1.textContent;
                     }
 
                     generateTOC();
                     showContent();
                 })
-                .catch(error => {
+                .catch(function(error) {
                     showError(error.message);
                 });
         }
 
         function generateTOC() {
-            const headings = document.querySelectorAll('#article .prose h2, #article .prose h3');
+            var headings = document.querySelectorAll('#article .prose h2, #article .prose h3');
 
-            // Desktop TOC
-            const tocList = document.getElementById('toc-list');
+            var tocList = document.getElementById('toc-list');
             tocList.innerHTML = '';
-
-            // Mobile TOC
-            const tocListMobile = document.getElementById('toc-list-mobile');
+            var tocListMobile = document.getElementById('toc-list-mobile');
             tocListMobile.innerHTML = '';
+
+            tocHeadings = [];
 
             if (headings.length === 0) {
                 document.getElementById('toc-mobile').style.display = 'none';
                 return;
             }
 
-            headings.forEach((heading, index) => {
-                const id = 'heading-' + index;
+            headings.forEach(function(heading, index) {
+                var id = 'heading-' + index;
                 heading.id = id;
+                tocHeadings.push(id);
 
-                const link = document.createElement('a');
+                var link = document.createElement('a');
                 link.href = '#' + id;
                 link.textContent = heading.textContent;
                 link.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
 
-                // Clone for mobile TOC
-                const linkMobile = link.cloneNode(true);
-                linkMobile.addEventListener('click', () => {
+                var linkMobile = link.cloneNode(true);
+                linkMobile.addEventListener('click', function() {
                     document.getElementById('toc-mobile-content').classList.remove('open');
                     document.getElementById('toc-chevron').classList.remove('rotate-180');
                 });
@@ -965,12 +979,12 @@
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('content').classList.remove('hidden');
 
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
                 anchor.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
+                    var href = this.getAttribute('href');
                     if (href !== '#') {
                         e.preventDefault();
-                        const target = document.querySelector(href);
+                        var target = document.querySelector(href);
                         if (target) {
                             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
@@ -980,12 +994,11 @@
         }
 
         function showError(msg) {
-            document.getElementById('loading').innerHTML = `
-                <div class="text-center">
-                    <p class="text-zinc-500 mb-4">文章加载失败: ${msg}</p>
-                    <a href="/" class="text-pink-500 hover:underline">返回首页</a>
-                </div>
-            `;
+            document.getElementById('loading').innerHTML =
+                '<div class="text-center">' +
+                '<p class="text-zinc-500 mb-4">\u6587\u7AE0\u52A0\u8F7D\u5931\u8D25: ' + msg + '</p>' +
+                '<a href="/" class="text-pink-500 hover:underline">\u8FD4\u56DE\u9996\u9875</a>' +
+                '</div>';
         }
 
         loadPost();
