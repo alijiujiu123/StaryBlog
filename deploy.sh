@@ -20,6 +20,7 @@ rsync -avz --delete \
     --exclude '.DS_Store' \
     --exclude 'deploy.sh' \
     --exclude 'admin/logs' \
+    --exclude 'posts/' \
     /Users/geshishuai/Documents/learn/aiWorkspace/github/StaryBlog/ \
     ${SERVER}:${DEPLOY_PATH}/
 
@@ -71,6 +72,7 @@ server {
 
     # API 代理到管理后端
     location /api/ {
+        client_max_body_size 10m;
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;

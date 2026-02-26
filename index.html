@@ -168,69 +168,55 @@
     <section id="posts" class="pb-12 sm:pb-16 lg:pb-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6 sm:mb-8" style="font-family: 'Jost', sans-serif;">最新文章</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <a href="/post.html?slug=financial-market-crash-analysis" class="post-card">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center text-xs sm:text-sm text-zinc-500 mb-2 sm:mb-3">
-                            <span>2026-02-06</span>
-                            <span class="mx-2">·</span>
-                            <span class="category-badge category-red">市场分析</span>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3 leading-snug">2026年2月6日全球金融市场暴跌深度研究</h3>
-                        <p class="text-zinc-600 text-sm mb-3 sm:mb-4 line-clamp-3">
-                            从市值维度观察，比特币总市值从峰值的2.48万亿美元急剧缩水至1.27万亿美元，蒸发规模高达1.21万亿美元。
-                        </p>
-                        <span class="read-more text-sm">
-                            阅读更多
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                <a href="/post.html?slug=openclaw-architecture" class="post-card">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center text-xs sm:text-sm text-zinc-500 mb-2 sm:mb-3">
-                            <span>2026-02-05</span>
-                            <span class="mx-2">·</span>
-                            <span class="category-badge category-blue">AI 架构</span>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3 leading-snug">OpenClaw 技术架构深度研究</h3>
-                        <p class="text-zinc-600 text-sm mb-3 sm:mb-4 line-clamp-3">
-                            OpenClaw 采用独特的 Gateway-centric architecture，将整个系统的控制平面集中于单一长期运行的 Gateway 进程中。
-                        </p>
-                        <span class="read-more text-sm">
-                            阅读更多
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                <a href="/post.html?slug=ai-customer-acquisition-methodology" class="post-card">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center text-xs sm:text-sm text-zinc-500 mb-2 sm:mb-3">
-                            <span>2026-02-05</span>
-                            <span class="mx-2">·</span>
-                            <span class="category-badge category-blue">AI 架构</span>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3 leading-snug">AI时代获客优先方法论：从验证到落地的系统化路径</h3>
-                        <p class="text-zinc-600 text-sm mb-3 sm:mb-4 line-clamp-3">
-                            在AI技术全面渗透商业生态的2026年，一种根深蒂固的创业思维惯性仍在广泛存在：创业者本能地遵循"先开发产品，再寻找市场"的线性路径。
-                        </p>
-                        <span class="read-more text-sm">
-                            阅读更多
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
+            <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- 文章卡片由 JS 动态渲染 -->
+                <div id="posts-loading" class="col-span-3 text-center py-12 text-zinc-400">加载中...</div>
             </div>
         </div>
     </section>
+
+    <script>
+        (async function () {
+            const grid = document.getElementById('posts-grid');
+            const loading = document.getElementById('posts-loading');
+
+            try {
+                const res = await fetch('/api/posts');
+                if (!res.ok) throw new Error('fetch failed');
+                const posts = await res.json();
+
+                loading.remove();
+
+                if (posts.length === 0) {
+                    grid.innerHTML = '<p class="col-span-3 text-center py-12 text-zinc-400">暂无文章</p>';
+                    return;
+                }
+
+                const arrowSvg = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+
+                posts.forEach(post => {
+                    const colorClass = `category-${post.categoryColor || 'blue'}`;
+                    const card = document.createElement('a');
+                    card.href = `/post.html?slug=${post.slug}`;
+                    card.className = 'post-card';
+                    card.innerHTML = `
+                        <div class="p-4 sm:p-6">
+                            <div class="flex items-center text-xs sm:text-sm text-zinc-500 mb-2 sm:mb-3">
+                                <span>${post.date || ''}</span>
+                                <span class="mx-2">·</span>
+                                <span class="category-badge ${colorClass}">${post.category || ''}</span>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-3 leading-snug">${post.title}</h3>
+                            <p class="text-zinc-600 text-sm mb-3 sm:mb-4 line-clamp-3">${post.description || ''}</p>
+                            <span class="read-more text-sm">阅读更多 ${arrowSvg}</span>
+                        </div>`;
+                    grid.appendChild(card);
+                });
+            } catch (e) {
+                loading.textContent = '文章加载失败，请刷新重试。';
+            }
+        })();
+    </script>
 
     <!-- About -->
     <section id="about" class="py-12 sm:py-16 lg:py-20 bg-white border-t border-zinc-200">

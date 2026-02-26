@@ -17,6 +17,45 @@
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- 密码验证遮罩 -->
+    <div id="auth-mask" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-xl p-8 w-80">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 text-center">管理后台</h2>
+            <input id="auth-input" type="password" placeholder="请输入密码"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onkeydown="if(event.key==='Enter')checkAuth()">
+            <p id="auth-error" class="text-red-500 text-xs mb-3 hidden">密码错误，请重试</p>
+            <button onclick="checkAuth()"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                进入
+            </button>
+        </div>
+    </div>
+    <script>
+        const PASSWORD_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+        const AUTH_KEY = 'blog_admin_authed';
+        async function checkAuth() {
+            const input = document.getElementById('auth-input');
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input.value));
+            const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            if (hash === PASSWORD_HASH) {
+                sessionStorage.setItem(AUTH_KEY, '1');
+                document.getElementById('auth-mask').remove();
+            } else {
+                document.getElementById('auth-error').classList.remove('hidden');
+                input.value = '';
+                input.focus();
+            }
+        }
+        if (sessionStorage.getItem(AUTH_KEY) === '1') {
+            document.getElementById('auth-mask').remove();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('auth-input').focus();
+            });
+        }
+    </script>
+
     <!-- Header -->
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">

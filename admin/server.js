@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 3001;
 
 // 中间件
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务（管理界面）
 app.use('/admin', express.static(path.join(__dirname, 'public')));
